@@ -14,7 +14,7 @@ from reportlab.lib.pagesizes import letter
 app = Flask(__name__)
 CORS(app)
 
-API_KEY = "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"
+API_KEY = "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"
 API_URL = "https://api.groq.com/openai/v1/chat/completions"
 
 UPLOAD_FOLDER = "uploads"
@@ -125,7 +125,8 @@ def compare_files():
     return jsonify({
         "original_text": original_text,
         "edited_text": edited_text,
-        "result" : diff_result
+        "result" : diff_result,
+        "hii" : "stop"
     })
 
 
