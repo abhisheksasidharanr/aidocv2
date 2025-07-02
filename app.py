@@ -48,51 +48,42 @@ def extract_text_from_pdf(file_path):
 def compare_documents(original_text, edited_text):
     prompt = f"""Compare the following **original text** and **edited text**, marking the differences at both **word and letter levels**.
 
-    **Rules:**
-    1. **Highlight deleted words as** `<DEL>word</DEL>`
-    2. **Highlight added words as** `<ADD>word</ADD>`
-    3. **Highlight deleted letters inside words as** `<DEL>letter</DEL>`
-    4. **Highlight added letters inside words as** `<ADD>letter</ADD>`
-    5. **Preserve line breaks, punctuation, and spaces exactly as in the edited text.**
-    6. **Return only the compared text with markers—no explanations or extra formatting.**
-    7. **If `</DEL><ADD>` appears in the output, insert a space between them (`</DEL> <ADD>`).**
-    8. **If the original and edited texts contain a table, preserve its structure and format it using <table>, <tr>, and <td> HTML tags, ensuring that added or deleted content is appropriately highlighted within table cells.**
+**Rules:**
+1. **Highlight deleted words as** `<DEL>word</DEL>`
+2. **Highlight added words as** `<ADD>word</ADD>`
+3. **Highlight deleted letters inside words as** `<DEL>letter</DEL>`
+4. **Highlight added letters inside words as** `<ADD>letter</ADD>`
+5. **Preserve line breaks, punctuation, and spaces exactly as in the edited text.**
+6. **Return only the compared text with markers—no explanations or extra formatting.**
+7. **If `</DEL><ADD>` appears in the output, insert a space between them (`</DEL> <ADD>`).**
+8. **If the original and edited texts contain a table, preserve its structure and format it using <table>, <tr>, and <td> HTML tags, ensuring that added or deleted content is appropriately highlighted within table cells.**
 
-    ---
+---
 
-    **Example 1**  
-        **Original:** `Hi I am Verbat.`  
-        **Edited:** `Hi I am Abhishek. I am from Verbat.`  
-        **Output:**  
-    `Hi I am <ADD>Abhishek</ADD> <DEL>Verbat</DEL>. <ADD>I am from Verbat.</ADD>`
+**Original:**  
+{original_text}
 
-    ---
+**Edited:**  
+{edited_text}
 
-    **Example 2**  
-        **Original:** `color`  
-        **Edited:** `colour`  
-        **Output:**  
-    `col<ADD>o</ADD>our`
+**Output:**"""
 
-    ---
+    headers = {
+        "Authorization": f"Bearer {API_KEY}",
+        "Content-Type": "application/json"
+    }
 
-    Now, compare the following:
-
-    **Original:**  
-    {original_text}
-
-    **Edited:**  
-    {edited_text}
-
-    **Output:**
-"""
-
-    headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
-    data = {"model": "qwen/qwen3-32b", "messages": [{"role": "system", "content": prompt}], "temperature": 0.2}
+    data = {
+        "model": "qwen/qwen3-32b",  # or whichever model you're using
+        "messages": [
+            {"role": "system", "content": "You are a document comparison tool."},
+            {"role": "user", "content": prompt}
+        ],
+        "temperature": 0.2
+    }
 
     response = requests.post(API_URL, headers=headers, json=data)
     return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
-    # return response
 
 
 @app.route("/compare", methods=["POST"])
