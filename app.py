@@ -45,18 +45,21 @@ def extract_text_from_pdf(file_path):
         return "\n".join([page.extract_text() for page in pdf.pages if page.extract_text()])
 
 
+import requests
+
 def compare_documents(original_text, edited_text):
-    prompt = f"""Compare the following **original text** and **edited text**, marking the differences at both **word and letter levels**.
+    prompt = f"""
+Compare the following **original text** and **edited text**, highlighting differences using the rules below.
 
 **Rules:**
-1. **Highlight deleted words as** `<DEL>word</DEL>`
-2. **Highlight added words as** `<ADD>word</ADD>`
-3. **Highlight deleted letters inside words as** `<DEL>letter</DEL>`
-4. **Highlight added letters inside words as** `<ADD>letter</ADD>`
-5. **Preserve line breaks, punctuation, and spaces exactly as in the edited text.**
-6. **Return only the compared text with markers—no explanations or extra formatting.**
-7. **If `</DEL><ADD>` appears in the output, insert a space between them (`</DEL> <ADD>`).**
-8. **If the original and edited texts contain a table, preserve its structure and format it using <table>, <tr>, and <td> HTML tags, ensuring that added or deleted content is appropriately highlighted within table cells.**
+1. Highlight deleted words as `<DEL>word</DEL>`
+2. Highlight added words as `<ADD>word</ADD>`
+3. Highlight deleted letters inside words as `<DEL>letter</DEL>`
+4. Highlight added letters inside words as `<ADD>letter</ADD>`
+5. Preserve punctuation, spaces, and line breaks as in the **edited** text.
+6. Return **only** the final compared text. **No reasoning or explanation.**
+7. If `</DEL><ADD>` appears, insert a space between them → `</DEL> <ADD>`
+8. Preserve table format using `<table>`, `<tr>`, `<td>` if any.
 
 ---
 
@@ -66,7 +69,8 @@ def compare_documents(original_text, edited_text):
 **Edited:**  
 {edited_text}
 
-**Output:**"""
+**Compared Output Only:**
+"""
 
     headers = {
         "Authorization": f"Bearer {API_KEY}",
@@ -74,16 +78,17 @@ def compare_documents(original_text, edited_text):
     }
 
     data = {
-        "model": "qwen/qwen3-32b",  # or whichever model you're using
+        "model": "qwen/qwen3-32b",  # Replace with actual model if different
         "messages": [
-            {"role": "system", "content": "You are a document comparison tool."},
+            {"role": "system", "content": "You are a strict comparison engine."},
             {"role": "user", "content": prompt}
         ],
-        "temperature": 0.2
+        "temperature": 0
     }
 
     response = requests.post(API_URL, headers=headers, json=data)
     return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
+
 
 
 @app.route("/compare", methods=["POST"])
