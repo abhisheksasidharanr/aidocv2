@@ -91,7 +91,8 @@ def compare_documents(original_text, edited_text):
     data = {"model": "qwen-2.5-32b", "messages": [{"role": "system", "content": prompt}], "temperature": 0.2}
 
     response = requests.post(API_URL, headers=headers, json=data)
-    return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
+    # return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
+    return response
 
 
 @app.route("/compare", methods=["POST"])
