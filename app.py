@@ -88,7 +88,7 @@ def compare_documents(original_text, edited_text):
 """
 
     headers = {"Authorization": f"Bearer {API_KEY}", "Content-Type": "application/json"}
-    data = {"model": "qwen-2.5-32b", "messages": [{"role": "system", "content": prompt}], "temperature": 0.2}
+    data = {"model": "qwen-qwq-32b", "messages": [{"role": "system", "content": prompt}], "temperature": 0.2}
 
     response = requests.post(API_URL, headers=headers, json=data)
     # return response.json().get("choices", [{}])[0].get("message", {}).get("content", "")
